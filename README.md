@@ -1,5 +1,5 @@
 # The Littlest JupyterHub behind nginx on your own server
-Tutorial to install the littlest JupyterHub using nginx as a reverse proxy
+Tutorial to install the Littlest JupyterHub using nginx as a reverse proxy. This allows to run different services and serve multiple websites on the same server as the one used by The Littlest JupyterHub.
 
 ## 1. Install TLJH on your own server
 - Using a terminal program, SSH into your server. This should give you a prompt where you can type commands.
@@ -60,13 +60,19 @@ apt-get install nginx
 sudo systemctl stop nginx
 ```  
   
-- Generate SSL certificates for your domain:
-   - Go the the "sites-enabled" folder and open the Nginx configuration file.
+- Generate a Let's encrypt SSL certificates for your domain:
+  - Download the Let’s Encrypt Client, which is called **certbot** and the Nginx Certbot plugin. 
+    ```
+    apt-get update
+    apt-get install certbot
+    apt-get install python-certbot-nginx
+    ```
+  - Certbot can automatically configure Nginx for SSL/TLS. It looks for and modifies the server block in your NGINX configuration that contains a server_name directive with the domain name you’re requesting a certificate for. In our example, the domain is JUPYTER-DOMAIN. Therefore, we'll have to modify the Nginx configuration. Go the the "sites-enabled" folder and open the Nginx configuration file.
       ```bash 
       cd /etc/nginx/sites-enabled
       nano default  
       ```    
-  - Remove everything and use the following simple (and temporary) configuration (replace \<JUPYTER-DOMAIN\> by your domain):
+  - Remove everything and use the following simple configuration (replace \<JUPYTER-DOMAIN\> by your domain):
     ```bash 
     server {
         listen 80;
@@ -74,7 +80,93 @@ sudo systemctl stop nginx
 
         return 302 https://$host$request_uri;
     }
-    ```      
-  
+    ```        
+  - Run the following command to generate certificates with the Nginx plug‑in:
+    ```
+    sudo certbot --nginx -d <JUPYTER-DOMAIN>
+    ```
+    
+  - If everything works correctly, certbot should display the following message:
+    ```
+    Congratulations! You have successfully enabled https://<JUPYTER-DOMAIN> 
+    -------------------------------------------------------------------------------------
+    IMPORTANT NOTES: 
 
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://paypal.me/johjob?locale.x=fr_FR)
+    Congratulations! Your certificate and chain have been saved at: 
+    /etc/letsencrypt/live/<JUPYTER-DOMAIN>/fullchain.pem 
+    Your key file has been saved at: 
+    /etc/letsencrypt/live/<JUPYTER-DOMAIN>//privkey.pem
+    Your cert will expire on XXX.
+    ```
+- Once the Let's encrypt certificates are generated, it is possible to completely configure Nginx. Make Nginx listen on port 80 and redirect traffic to SSL/HTTPS. The Nginx server that handles SSL communication acts as a reverse proxy and redirect traffic (Web sockets included) to Traefik proxy that listens on port 127.0.0.1:<TRAEFIK_LISTENING_PORT>. Go to /etc/nginx/sites-enabled, open "default" file and replace the old configuration by this one:
+    
+    ```
+    # top-level http config for websocket headers
+    # If Upgrade is defined, Connection = upgrade
+    # If Upgrade is empty, Connection = close
+    map $http_upgrade $connection_upgrade {
+        default upgrade;
+        ''      close;
+    }
+
+    # HTTP server to redirect all 80 traffic to SSL/HTTPS
+    server {
+        listen 80;
+        server_name <JUPYTER-DOMAIN>;
+
+        # Tell all requests to port 80 to be 302 redirected to HTTPS
+        return 302 https://$host$request_uri;
+    }
+
+    # HTTPS server to handle JupyterHub
+    server {
+        listen 443 ssl;
+        server_name <JUPYTER-DOMAIN>;
+
+        ssl_certificate /etc/letsencrypt/live/<JUPYTER-DOMAIN>/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/<JUPYTER-DOMAIN>/privkey.pem;
+
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+        ssl_prefer_server_ciphers on;
+        ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-        SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA';
+        ssl_session_timeout 1d;
+        ssl_session_cache shared:SSL:50m;
+        ssl_stapling on;
+        ssl_stapling_verify on;
+        add_header Strict-Transport-Security max-age=15768000;
+
+        # Managing literal requests to the JupyterHub front end
+        location / {
+            proxy_pass http://127.0.0.1:<TRAEFIK_LISTENING_PORT>;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+            # websocket headers
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+            proxy_set_header X-Scheme $scheme;
+            proxy_buffering off;
+        }
+
+        # Managing requests to verify letsencrypt host
+        location ~ /.well-known {
+            allow all;
+        }
+    }
+    
+    ```
+- Simply restart Nginx with the new configuration.
+  ```bash
+    sudo systemctl start nginx
+  ``` 
+    
+- You can now access https://<JUPYTER-DOMAIN> and the communication is secured with SSL.
+    
+- You can now also change the Nginx configuration file by adding new directives to serve other websites on the same server.
+  
+## 4. Donation
+    - Thank you for reading. If you find the tutorial useful, buy me a coffee:
+    
+      [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://paypal.me/johjob?locale.x=fr_FR)
