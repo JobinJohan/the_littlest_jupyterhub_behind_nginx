@@ -50,7 +50,7 @@ Tutorial to install the Littlest JupyterHub using Nginx as a reverse proxy. This
 - Wait a few minutes. Try accessing http://JUPYTER-DOMAIN:<TRAEFIK_LISTENING_PORT>. If there is no problem, you should see the JupyterHub login page again.  
   
   
-# 3. Install Nginx as a reverse proxy
+## 4. Install Nginx as a reverse proxy
 - Install Nginx.
 ```bash 
 apt-get install nginx
@@ -166,7 +166,7 @@ sudo systemctl stop nginx
     
 - You can now also change the Nginx configuration file by adding new directives to serve other websites on the same server.
   
-## 4. Donation
+## 5. Donation
 
 Thank you for reading. If you find the tutorial useful, buy me a coffee :)
  <html>   
