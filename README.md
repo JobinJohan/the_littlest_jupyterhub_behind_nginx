@@ -162,7 +162,7 @@ sudo systemctl stop nginx
     sudo systemctl start nginx
   ``` 
     
-- You can now access https://<JUPYTER-DOMAIN> and the communication is secured with SSL.
+- You can now access https://\<JUPYTER-DOMAIN\> and the communication is secured with SSL.
     
 - You can now also change the Nginx configuration file by adding new directives to serve other websites on the same server.
   
@@ -170,5 +170,5 @@ sudo systemctl stop nginx
 
 Thank you for reading. If you find the tutorial useful, buy me a coffee :)
  <html>   
-     <a href="https://paypal.me/johjob?locale.x=fr_FR" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;margin:auto; display:block;" ></a>
+     <a href="https://paypal.me/johjob" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;margin:auto; display:block;" ></a>
    </html>    
