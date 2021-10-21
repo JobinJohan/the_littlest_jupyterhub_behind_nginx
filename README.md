@@ -1,5 +1,5 @@
-# The Littlest JupyterHub behind nginx on your own server
-Tutorial to install the Littlest JupyterHub using nginx as a reverse proxy. This allows us to run different services and serve multiple websites on the same server as the one used by The Littlest JupyterHub.
+# The Littlest JupyterHub behind Nginx on your own server
+Tutorial to install the Littlest JupyterHub using Nginx as a reverse proxy. This allows us to run different services and serve multiple websites on the same server as the one used by The Littlest JupyterHub.
 
 ## 1. Install TLJH on your own server
 - Using a terminal program, SSH into your server. This should give you a prompt where you can type commands.
@@ -169,6 +169,6 @@ sudo systemctl stop nginx
 ## 4. Donation
 
 Thank you for reading. If you find the tutorial useful, buy me a coffee :)
- <p align="center">
-  <img href="https://paypal.me/johjob?locale.x=fr_FR" src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" />
-</p>    
+ <html>   
+     <a href="https://paypal.me/johjob?locale.x=fr_FR" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;margin:auto; display:block;" ></a>
+   </html>    
