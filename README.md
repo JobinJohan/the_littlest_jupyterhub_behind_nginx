@@ -1,5 +1,5 @@
 # The Littlest JupyterHub behind nginx on your own server
-Tutorial to install the Littlest JupyterHub using nginx as a reverse proxy. This allows to run different services and serve multiple websites on the same server as the one used by The Littlest JupyterHub.
+Tutorial to install the Littlest JupyterHub using nginx as a reverse proxy. This allows us to run different services and serve multiple websites on the same server as the one used by The Littlest JupyterHub.
 
 ## 1. Install TLJH on your own server
 - Using a terminal program, SSH into your server. This should give you a prompt where you can type commands.
@@ -98,7 +98,7 @@ sudo systemctl stop nginx
     /etc/letsencrypt/live/<JUPYTER-DOMAIN>//privkey.pem
     Your cert will expire on XXX.
     ```
-- Once the Let's encrypt certificates are generated, it is possible to completely configure Nginx. Make Nginx listen on port 80 and redirect traffic to SSL/HTTPS. The Nginx server that handles SSL communication acts as a reverse proxy and redirect traffic (Web sockets included) to Traefik proxy that listens on port 127.0.0.1:<TRAEFIK_LISTENING_PORT>. Go to /etc/nginx/sites-enabled, open "default" file and replace the old configuration by this one:
+- Once the Let's encrypt certificates are generated, it is possible to completely configure Nginx. Make Nginx listen on port 80 and redirect traffic to SSL/HTTPS. The Nginx server that handles SSL communication acts as a reverse proxy and redirect traffic (Web sockets included) to Traefik proxy that listens on port 127.0.0.1:<TRAEFIK_LISTENING_PORT>. Go to /etc/nginx/sites-enabled, open "default" file and replace the old configuration by this one (**replace \<JUPYTER-DOMAIN\>,\<TRAEFIK_LISTENING_PORT\> and certificate paths by the correct values**):
     
     ```
     # top-level http config for websocket headers
@@ -167,6 +167,8 @@ sudo systemctl stop nginx
 - You can now also change the Nginx configuration file by adding new directives to serve other websites on the same server.
   
 ## 4. Donation
-    - Thank you for reading. If you find the tutorial useful, buy me a coffee:
-    
-      [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://paypal.me/johjob?locale.x=fr_FR)
+
+Thank you for reading. If you find the tutorial useful, buy me a coffee :)
+ <p align="center">
+  <img href="https://paypal.me/johjob?locale.x=fr_FR" src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" />
+</p>    
